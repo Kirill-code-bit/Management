@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <title>Todo-list-mvc</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="style.css">
+</head>
+[{"id":1,"text":"gym","complete":false},{"id":2,"text":"df","complete":false}]
+<style>
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 1rem;
+  color: #444;
+}
+
+#ro {
+  max-width: 650px;
+  height: 520px;
+  margin: 2rem auto;
+  padding: 0 .5rem;
+  background: #eee709;
+  border-radius: 10%;
+}
+
+form {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+[type="text"],
+button {
+  display: inline-block;
+  -webkit-appearance: none;
+  padding: .5rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  cursor: pointer;
+  background: purple;
+  color: white;
+  margin: 0 .5rem;
+}
+
+[type="text"] {
+  width: 100%;
+}
+
+[type="text"]:active,
+[type="text"]:focus {
+  outline: 0;
+}
+
+[type="checkbox"] {
+  margin-right: 1rem;
+  font-size: 2rem;
+}
+
+h1 {
+  color: #222;
+  text-align: center;
+  padding-right: 80px;
+}
+
+ul {
+  padding: 0;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  margin-bottom: 1rem;
+  background: #91e27d;
+  border-radius: 4px;
+}
+
+li span {
+  display: inline-block;
+  padding: .5rem;
+  width: 420px;
+}
+
+
+#filterButtons{
+  cursor: pointer;
+  padding: 0.5rem;
+  font-weight: 500;
+  justify-content: center;
+  text-align: center;
+  margin-left: 2rem;
+}
+
+.fa-trash,
+.fa-check{
+pointer-events: none;
+}
+
+
+.buttons{
+  height: 50px;
+  justify-content: center;
+  text-align: center;
+}
+.all{
+float: left;
+width: 7rem;
+padding: 0.7rem;
+border-radius: 20px;
+cursor: pointer;
+background: rgb(176, 71, 237);
+color: white;
+}
+.active{
+  float: left;
+  width: 7rem;
+  padding: 0.7rem;
+border-radius: 20px;
+cursor: pointer;
+background: rgb(176, 71, 237);
+color: white;
+}
+.complete{
+  float: left;
+  width: 7rem;
+  padding: 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  background: rgb(176, 71, 237);
+  color: white;
+}
+
+.Upload{
+  float: left;
+  width: 7rem;
+  padding: 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  background: rgb(176, 71, 237);
+  color: white;
+  }
+  .Download{
+    float: left;
+    width: 7.2rem;
+    padding: 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  background: rgb(176, 71, 237);
+  color: white;
+  }
+</style>
+
+
+<body>
+ 
+    <div id="ro"> <div id="filterButtons" class="buttons">
+    <div class="all" value="0">All</div>
+    <div class="active" value="1">Active</div>
+    <div class="complete" value="2">Completed</div>
+    <div class="Upload" id="uploadBtn" >Upload</div>
+    <div class="Download" id="downloadBtn"><i class="fa fa-download"></i> Download</div>
+  </div>
+  <script src="model.js"></script>
+  <script src="view.js"></script>
+  <script src="controller.js"></script>
+
+</body>
+<script>
+class Controller {
+    constructor(model, view) {
+      this.model = model
+      this.view = view
+      this.model.bindTodoListChanged(this.onTodoListChanged)
+      this.view.bindAddTodo(this.handleAddTodo)
+      this.view.bindEditTodo(this.handleEditTodo)
+      this.view.bindDeleteTodo(this.handleDeleteTodo)
+      this.view.bindToggleTodo(this.handleToggleTodo)
+      this.view.bindFilterTodo(this.handleFilterTodo);
+      this.view.bindUploadTodo(this.handleUpload);
+      this.view.bindDownloadTodo(this.handleDownload);
+
+      this.onTodoListChanged(this.model.todos)
+    }
+      
+    onTodoListChanged = todos => {
+      this.view.displayTodos(todos)
+    }
+  
+    handleAddTodo = todoText => {
+      this.model.addTodo(todoText)
+    }
+  
+    handleEditTodo = (id, todoText) => {
+      this.model.editTodo(id, todoText)
+    }
+  
+    handleDeleteTodo = id => {
+      this.model.deleteTodo(id)
+    }
+  
+    handleToggleTodo = id => {
+      this.model.toggleTodo(id)
+    }
+    handleFilterTodo = filter => {
+      this.model.filterTodo(filter);
+  };
+
+
+  handleUpload = () => {
+    if (!this.model.todos)
+      return;
+    var data = JSON.stringify(this.model.todos);
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+        alert('upload successful!')
+      else if (xmlHttp.readyState === 4 && xmlHttp.status === 500) {
+        alert(xmlHttp.responseText);
+      }
+    }
+    xmlHttp.open('POST', 'write', true);
+    xmlHttp.setRequestHeader('Content-Type', 'application/json');
+    xmlHttp.send(data);
+  }
+ 
+  handleDownload = () => {
+    var xmlHttp = new XMLHttpRequest();
+    var self = this;
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+        var data = JSON.parse(xmlHttp.responseText);
+        self.model.todos = data;
+        //self.model.bindTodoListChanged();
+        //self.onTodoListChanged(self.model.todos);
+        self.model.setLocalStorage(self.model.todos);
+        alert("replace Successfully!");
+      }
+    };
+    xmlHttp.open('GET', 'read', true);
+    xmlHttp.send();
+  }
+  }
+  
+  const app = new Controller(new Model(), new View())
+class Model {
+    constructor() {
+      this.todos=JSON.parse(localStorage.getItem('TODOS'));
+      if(!this.todos) {
+        this.todos = [];
+        this.filter=0;
+      }
+    }
+    bindTodoListChanged(callback) {
+      this.onTodoListChanged = callback
+
+    }
+  
+    _commit(todos = this.todos) {
+      this.onTodoListChanged(todos.filter(todo => {
+          if (this.filter === 0) return true;
+          return this.filter === 1 ? !todo.complete : todo.complete;
+      }));
+  }
+
+    addTodo(todoText) {
+      const todo = {
+        id: this.todos.length > 0 ? this.todos[this.todos.length - 1].id + 1 : 1,
+        text: todoText,
+        complete: false,
+      }
+      this.todos.push(todo)
+      this._commit(this.todos)
+      localStorage.setItem('TODOS', JSON.stringify(this.todos));
+      //       window.addEventListener("load", function() {
+      //   toDo = new ToDoClass();
+      // });
+    }
+
+    editTodo(id, updatedText) {
+      this.todos = this.todos.map(todo =>
+      todo.id === id ? { id: todo.id, text: updatedText, complete: todo.complete } : todo)
+      this._commit(this.todos)
+      localStorage.setItem('TODOS', JSON.stringify(this.todos));
+
+    }
+  
+    deleteTodo(id) {
+      this.todos = this.todos.filter(todo => todo.id !== id)
+      this._commit(this.todos)
+      localStorage.setItem('TODOS', JSON.stringify(this.todos));
+
+    }
+  
+    toggleTodo(id) {
+      this.todos = this.todos.map(todo =>
+        todo.id === id ? { 
+          id: todo.id, 
+          text: todo.text, 
+          complete: !todo.complete } 
+          : todo);
+      this._commit(this.todos)
+      localStorage.setItem('TODOS', JSON.stringify(this.todos));
+
+    }
+  
+    filterTodo(filter) {
+      this.filter = filter;
+      this._commit();
+
+  }
+  completeTodo(id) {
+    this.todos = this.todos.map(todo =>
+      todo.id === id ? { id: todo.id, text: todo.text, complete: !todo.complete } : todo
+    );
+
+    this._commit(this.todos);
+  }
+  getLocalStorage() {
+    return JSON.parse(localStorage.getItem('TODOS')) || [];
+  }
+
+  //save todolist's data in local storage
+  setLocalStorage(todos) {
+    localStorage.setItem('TODOS', JSON.stringify(todos));
+    this._commit(this.todos);
+  }
+}
+class View {
+    constructor() {
+      this.app = this.getElement('#ro')
+      this.form = this.createElement('form')
+      this.input = this.createElement('input')
+      this.input.type = 'text'
+      //this.input.placeholder = 'Add todo'
+      this.input.name = 'todo'
+      this.filterBtns = document.getElementById("filterButtons")
+      this.allBtn = document.querySelector(".all")
+      this.activeBtn = document.querySelector(".active")
+      this.completeBtn = document.querySelector(".complete")
+      this.uploadBtn = document.querySelector(".Upload")
+      this.downloadBtn = document.querySelector(".Download")
+      this.submitButton = this.createElement('button')
+      this.submitButton.textContent = 'ADD'
+      this.form.append(this.input, this.submitButton)
+      this.title = this.createElement('h1')
+      this.title.textContent = 'Todo-List'
+      this.todoList = this.createElement('ul', 'todo-list')
+      this.app.append(this.title, this.form, this.todoList)
+      this._temporaryTodoText = ''
+      this._initLocalListeners()
+    }
+  
+    get _todoText() {
+      return this.input.value
+    }
+  
+    _resetInput() {
+      this.input.value = ''
+    }
+  
+    createElement(tag, className) {
+      const element = document.createElement(tag)
+      if (className) element.classList.add(className)
+      return element
+    }
+  
+    getElement(selector) {
+      const element = document.querySelector(selector)
+      return element
+    }
+  
+    displayTodos(todos) {
+      // Delete all nodes
+      while (this.todoList.firstChild) {
+        this.todoList.removeChild(this.todoList.firstChild)
+      }
+      // Show default message
+      if (todos.length === 0) {
+        const p = this.createElement('p')
+        //p.textContent = 'Nothing to do! Add a task?'
+        this.todoList.append(p)
+      } else {
+        // Create nodes
+        todos.forEach(todo => {
+          const li = this.createElement('li')
+          li.id = todo.id
+  
+          const checkbox = this.createElement('input')
+          checkbox.type = 'checkbox'
+          checkbox.checked = todo.complete
+  
+          const span = this.createElement('span')
+          span.contentEditable = true
+          span.classList.add('editable')
+  
+          if (todo.complete) {
+            const strike = this.createElement('s')
+            strike.textContent = todo.text
+            span.append(strike)
+          } else {
+            span.textContent = todo.text
+          }
+          const deleteButton = this.createElement('button', 'delete')
+          deleteButton.innerHTML='<i class= "fas fa-trash"></i>';
+          li.append(checkbox, span, deleteButton)
+  
+          // Append nodes
+          this.todoList.append(li)
+        })
+      }
+      // Debugging
+      console.log(todos)
+    }
+
+    _initLocalListeners() {
+      this.todoList.addEventListener('input', event => {
+        if (event.target.className === 'editable') {
+          this._temporaryTodoText = event.target.innerText
+        }
+      })
+    }
+  
+    bindAddTodo(handler) {
+      this.form.addEventListener('submit', event => {
+        event.preventDefault()
+        if (this._todoText) {
+          handler(this._todoText)
+          this._resetInput()
+        }
+      })
+    }
+  
+    bindDeleteTodo(handler) {
+      this.todoList.addEventListener('click', event => {
+        if (event.target.className === 'delete') {
+          const id = parseInt(event.target.parentElement.id)
+          handler(id)
+        }
+      })
+    }
+  
+    bindEditTodo(handler) {
+      this.todoList.addEventListener('focusout', event => {
+        if (this._temporaryTodoText) {
+          const id = parseInt(event.target.parentElement.id)
+  
+          handler(id, this._temporaryTodoText)
+          this._temporaryTodoText = ''
+        }
+      })
+    }
+  
+    bindToggleTodo(handler) {
+      this.todoList.addEventListener('change', event => {
+        if (event.target.type === 'checkbox') {
+          const id = parseInt(event.target.parentElement.id)
+          handler(id)
+        }
+      })
+    }
+  
+    bindFilterTodo(handler) {
+      this.filterBtns.addEventListener("click", e => {
+          var filter = +e.target.getAttribute("value");
+          handler(filter);
+      });
+  }
+
+  bindUploadTodo(handler) {
+    this.uploadBtn.addEventListener('click', e => {
+      handler()
+    })
+  }
+
+  bindDownloadTodo(handler) {
+    this.downloadBtn.addEventListener('click', e => {
+      handler();
+    })
+  }
+  }
+var http = require('http');
+var fs = require('fs');
+var path = require('path');
+http.createServer(function (request, response) {
+	console.log("request starting...");
+	var filePath = "." + request.url;
+	var extname = path.extname(filePath);
+	var contentType = 'text/html';
+	switch (extname) {
+	case ".js":
+		contentType = 'text/javascript';
+		break;
+	case ".css":
+		contentType = 'text/css';
+		break;
+	}
+	var whatMethod;
+	if (request.method === "GET" && request.url === "/") {
+		whatMethod = function (request, response) {
+			fs.readFile("./New/index.html", function (error, content) {
+				if (error) {
+					response.writeHead(404, {
+						"Content-Type": "text/html"
+					});
+					response.end("404 Not Found");
+				}
+				response.writeHead(200, {
+					"Content-Type": contentType
+				});
+				response.end(content, "utf8");
+			});
+		};
+	} else if (request.method === "GET" && request.url === "/read") {
+		whatMethod = function (request, response) {
+			fs.readFile("data.txt", function (err, data) {
+				if (err) throw err;
+				response.writeHead(200, {
+					"Content-Type": "text/html"
+				});
+				response.write(data);
+				response.end();
+			});
+		};
+	} else if (request.method === "POST" && request.url === "/write") {
+		whatMethod = function (request, response) {
+			request.on("data", function (data) {
+				fs.writeFile("data.txt", data, function (err) {
+					if (err) throw err;
+				});
+			});
+			request.on("end", function () {
+				console.log("Saved successfully!");
+			});
+			response.writeHead(200, {
+				"Content-Type": "text/html"
+			});
+			response.end();
+		};
+	} else {
+		whatMethod = function (request, response) {
+			fs.readFile("./New/" + request.url, function (err, content) {
+				if (err) {
+					response.writeHead(404, {
+						"Content-Type": "text/html"
+					});
+					response.end("404 Not Found");
+				}
+				response.writeHead(200);
+				response.end(content, "utf8");
+			});
+		};
+	}
+	whatMethod(request, response);
+}).listen(9080);
+</script>
+
+</html>
